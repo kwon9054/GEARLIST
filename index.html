@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>촬영장비 리스트</title>
+    <title>촬영 장비 리스트</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -335,37 +335,37 @@
         </a>
     </div>
 
-    <h1>촬영장비 리스트</h1>
+    <h1>촬영 장비 리스트</h1>
 
     <details class="import-section">
         <summary>📝 카톡 공유 텍스트로 목록 복구하기</summary>
         <div class="import-container">
-            <textarea id="importTextArea" placeholder="공유했던 카톡 텍스트 전체를 여기에 붙여넣으세요."></textarea>
+            <textarea id="importTextArea" placeholder="공유했던 카톡 텍스트 전체를 여기에 붙여넣으세요. 기존의 장비 데이터가 그대로 복구 됩니다."></textarea>
             <button class="btn-import" onclick="importFromText()">📋 데이터 복구하기</button>
         </div>
     </details>
 
     <div class="meta-info">
         <div class="input-group">
-            <input type="text" id="projectName" placeholder="프로젝트 이름">
+            <input type="text" id="projectName" placeholder="프로젝트 이름 입력">
         </div>
         <div class="input-group row">
             <input type="date" id="shootDate">
-            <input type="text" id="callTime" placeholder="콜타임 (ex. 07:00)">
+            <input type="text" id="callTime" placeholder="콜 타임 입력(ex. 오전 8시)">
         </div>
         
         <div class="input-group">
-            <input type="text" id="locationInput" placeholder="촬영 장소 주소 기입">
+            <input type="text" id="locationInput" placeholder="로케 주소 입력">
         </div>
         
         <div class="shop-registration">
-            <input type="text" id="shopInput" placeholder="장비 출처 기입 ex. 480P 렌탈 / 학교 장비 / 개인장비 등">
+            <input type="text" id="shopInput" placeholder="장비 출처 기입 (ex. 480P 렌탈 / 학교 장비 / 개인장비) 하면 목록에 추가">
             <button class="btn-register" onclick="registerShop()">등록</button>
         </div>
         <div class="shop-tags" id="shopTags"></div>
 
         <div class="input-group">
-            <textarea id="memoInput" placeholder="메모 / 특이사항을 입력해 주세요. (ex. 픽업 시간, 주의 사항 등)"></textarea>
+            <textarea id="memoInput" placeholder="메모 / 특이사항을 입력해 주세요. (ex. 촬영 전날 배터리 충전하기)"></textarea>
         </div>
     </div>
 
@@ -379,7 +379,7 @@
 <div id="authErrorBlock" style="display: none;">
     <div class="auth-error-container">
         <h2>DEKOBOKO NFC를 태그 하세요.</h2>
-        <p>이 페이지는 DEKOBOKO 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.</p>
+        <p>이 페이지는 DEKOBOKO 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.<br>장비 목록이 초기화 됐다면 기존 카톡 공유 텍스트를 복사하여 붙여 넣으시면<br>그대로 복구 됩니다:)</p>
     </div>
 </div>
 
