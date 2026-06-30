@@ -14,6 +14,7 @@
             --accent-color: #007bff;
             --kakao-color: #fee500;
             --kakao-text: #191919;
+            --import-bg: #f1f3f5;
         }
 
         body {
@@ -95,6 +96,42 @@
             font-weight: 800;
             margin-bottom: 25px;
             letter-spacing: -0.5px;
+        }
+
+        /* 텍스트 불러오기 섹션 스타일 */
+        .import-section {
+            background-color: var(--import-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .import-section summary {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+        }
+
+        .import-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-import {
+            width: 100%;
+            background-color: var(--text-main);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
         }
 
         .meta-info {
@@ -300,6 +337,14 @@
 
     <h1>촬영장비 리스트</h1>
 
+    <details class="import-section">
+        <summary>📝 카톡 공유 텍스트로 목록 복구하기</summary>
+        <div class="import-container">
+            <textarea id="importTextArea" placeholder="공유했던 카톡 텍스트 전체를 여기에 붙여넣으세요."></textarea>
+            <button class="btn-import" onclick="importFromText()">📋 데이터 복구하기</button>
+        </div>
+    </details>
+
     <div class="meta-info">
         <div class="input-group">
             <input type="text" id="projectName" placeholder="프로젝트 이름">
@@ -333,8 +378,8 @@
 
 <div id="authErrorBlock" style="display: none;">
     <div class="auth-error-container">
-        <h2>접속 권한이 없습니다.</h2>
-        <p>이 페이지는 정식 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.</p>
+        <h2>DEKOBOKO NFC를 태그 하세요.</h2>
+        <p>이 페이지는 DEKOBOKO 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.</p>
     </div>
 </div>
 
@@ -345,21 +390,15 @@
     (function checkNfcAuthority() {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('auth');
-
-        // ⭐ 여기 'sabujak2026' 자리에 원하시는 나만의 보안코드를 입력하시면 됩니다!
-        // 예: 'mysecret', 'gear777' 등
         const SECRET_TOKEN = 'sabujak2026';
 
         if (token !== SECRET_TOKEN) {
-            // 토큰이 없거나 다르면 에러 화면 표시
             document.getElementById('authErrorBlock').style.display = 'block';
             return; 
         }
 
-        // 인증 성공 시 메인 화면 보이기
         document.getElementById('mainContent').style.display = 'block';
 
-        // 즉시 주소창에서 "?auth=sabujak2026" 지우기 (사용자 복사 및 재유출 방지)
         if (window.history.replaceState) {
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.replaceState({path: cleanUrl}, '', cleanUrl);
@@ -367,7 +406,136 @@
     })();
 
     // ----------------------------------------------------
-    // 기존 기능 스크립트 로직
+    // 데이터 복구 (카톡 텍스트 -> 웹 화면 복원) 핵심 로직
+    // ----------------------------------------------------
+    function importFromText() {
+        const rawText = document.getElementById('importTextArea').value.trim();
+        if (!rawText) {
+            alert('복사한 카톡 텍스트를 입력창에 넣어주세요.');
+            return;
+        }
+
+        const lines = rawText.split('\n');
+        
+        // 초기화
+        document.getElementById('equipmentList').innerHTML = '';
+        shopList = [];
+        let memoLines = [];
+        let isMemoSection = false;
+        let equipmentData = [];
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+
+            // 1. 메타 정보 파싱
+            if (trimmed.startsWith('📌 프로젝트:')) {
+                document.getElementById('projectName').value = trimmed.replace('📌 프로젝트:', '').trim();
+            } else if (trimmed.startsWith('📅 촬영 날짜:')) {
+                document.getElementById('shootDate').value = trimmed.replace('📅 촬영 날짜:', '').trim();
+            } else if (trimmed.startsWith('⏰ 콜타임:')) {
+                document.getElementById('callTime').value = trimmed.replace('⏰ 콜타임:', '').trim();
+            } else if (trimmed.startsWith('📍 촬영 장소:')) {
+                document.getElementById('locationInput').value = trimmed.replace('📍 촬영 장소:', '').trim();
+            }
+            // 2. 메모 섹션 진입 판단
+            else if (trimmed.startsWith('📝 메모/특이사항:')) {
+                isMemoSection = true;
+            }
+            // 3. 장비 리스트 및 구분 태그 파싱
+            else if (!isMemoSection && /^\d+\./.test(trimmed)) {
+                // 예시 형태: "1. FX6 - 2개 [480P 렌탈]"
+                // 번호 제거
+                const content = trimmed.replace(/^\d+\.\s*/, '');
+                
+                let name = '';
+                let qty = '1';
+                let shop = '';
+
+                // 장비 출처 [태그] 분리
+                let mainPart = content;
+                const shopMatch = content.match(/\[(.*?)\]$/);
+                if (shopMatch) {
+                    shop = shopMatch[1].trim();
+                    mainPart = content.replace(/\[(.*?)\]$/, '').trim();
+                    if (!shopList.includes(shop)) {
+                        shopList.push(shop);
+                    }
+                }
+
+                // 수량 분리 (" - 수량개" 구조 매칭)
+                const qtyMatch = mainPart.match(/-\s*(\d+)개$/);
+                if (qtyMatch) {
+                    qty = qtyMatch[1];
+                    name = mainPart.replace(/-\s*(\d+)개$/, '').trim();
+                } else {
+                    name = mainPart;
+                }
+
+                equipmentData.push({ name, qty, shop });
+            }
+            // 4. 메모 텍스트 누적
+            else if (isMemoSection) {
+                if (!trimmed.startsWith('---')) {
+                    memoLines.push(line);
+                }
+            }
+        });
+
+        // 파싱된 장비 출처 태그 UI에 그리기 및 드롭다운 동기화
+        renderShopTags();
+
+        // 파싱된 장비 목록 UI에 생성 및 값 주입
+        if (equipmentData.length === 0) {
+            // 정보가 없을 경우 기본 3개 배치
+            for(let i = 0; i < 3; i++) addEquipmentItem();
+        } else {
+            equipmentData.forEach(item => {
+                addEquipmentItemWithValue(item.name, item.qty, item.shop);
+            });
+        }
+
+        // 메모 데이터 복원
+        document.getElementById('memoInput').value = memoLines.join('\n').trim();
+        document.getElementById('importTextArea').value = ''; // 입력창 비우기
+        
+        // 접이식 창 닫기
+        document.querySelector('.import-section').removeAttribute('open');
+        
+        alert('카톡 텍스트의 데이터가 성공적으로 복구되었습니다!');
+    }
+
+    // 값 지정을 동반한 품목 추가 함수
+    function addEquipmentItemWithValue(name, qty, shop) {
+        itemCount++;
+        const listContainer = document.getElementById('equipmentList');
+        const itemRow = document.createElement('div');
+        itemRow.className = 'equipment-item';
+        itemRow.id = `itemRow_${itemCount}`;
+        
+        let selectOptions = `<option value="">장비 구분</option>`;
+        shopList.forEach(s => {
+            selectOptions += `<option value="${s}" ${s === shop ? 'selected' : ''}>${s}</option>`;
+        });
+        
+        itemRow.innerHTML = `
+            <span class="item-number">${itemCount}.</span>
+            <input type="text" class="item-name" placeholder="장비명" value="${name}">
+            <div class="item-qty-wrapper">
+                <input type="number" class="item-qty" placeholder="0" min="1" value="${qty}">
+                <span class="qty-unit">개</span>
+            </div>
+            <select class="item-shop">
+                ${selectOptions}
+            </select>
+            <button class="btn-delete" onclick="removeItem(${itemCount})">×</button>
+        `;
+        listContainer.appendChild(itemRow);
+        renumberItems();
+    }
+
+    // ----------------------------------------------------
+    // 기존 핵심 기본 로직
     // ----------------------------------------------------
     let itemCount = 0;
     let shopList = [];
@@ -378,6 +546,7 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('shootDate').value = today;
 
+        // 초기 구동 시에는 기본 빈 로우 3개 생성
         for(let i = 0; i < 3; i++) {
             addEquipmentItem();
         }
@@ -425,7 +594,6 @@
     function addEquipmentItem() {
         itemCount++;
         const listContainer = document.getElementById('equipmentList');
-        
         const itemRow = document.createElement('div');
         itemRow.className = 'equipment-item';
         itemRow.id = `itemRow_${itemCount}`;
@@ -546,4 +714,3 @@
 
 </body>
 </html>
-
