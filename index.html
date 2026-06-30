@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>촬영 장비 리스트</title>
     <style>
         :root {
@@ -17,12 +17,16 @@
             --import-bg: #f1f3f5;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
         }
@@ -31,39 +35,39 @@
             width: 100%;
             max-width: 520px;
             background: var(--card-bg);
-            padding: 30px 20px;
+            padding: 24px 16px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            box-sizing: border-box;
         }
 
         /* 인증 실패 시 나타날 경고 화면 스타일 */
         .auth-error-container {
             text-align: center;
-            padding: 60px 20px;
+            padding: 60px 16px;
             font-family: inherit;
         }
         
         .auth-error-container h2 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #ff4d4f;
             margin-bottom: 12px;
+            word-break: keep-all;
         }
         
         .auth-error-container p {
             color: var(--text-sub);
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.6;
+            word-break: keep-all;
         }
 
         .logo-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 25px;
-            padding: 0 5px;
         }
 
         .logo-link {
@@ -71,10 +75,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 60px;
+            height: 54px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 8px;
+            padding: 6px;
             background-color: #ffffff;
             transition: all 0.2s ease;
         }
@@ -92,7 +96,7 @@
 
         h1 {
             text-align: center;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
             margin-bottom: 25px;
             letter-spacing: -0.5px;
@@ -101,13 +105,13 @@
         /* 텍스트 불러오기 섹션 스타일 */
         .import-section {
             background-color: var(--import-bg);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
             margin-bottom: 25px;
         }
 
         .import-section summary {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-main);
             cursor: pointer;
@@ -127,7 +131,7 @@
             background-color: var(--text-main);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 11px;
             border-radius: 6px;
             font-weight: 600;
             font-size: 13px;
@@ -153,7 +157,6 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 14px;
-            box-sizing: border-box;
             outline: none;
             transition: border-color 0.2s;
             font-family: inherit;
@@ -227,49 +230,57 @@
         .equipment-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
+        /* [핵심 변경] 장비 한 줄 레이아웃 최적화 */
         .equipment-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            width: 100%;
         }
 
         .item-number {
             font-weight: 700;
-            width: 22px;
+            width: 20px;
             color: var(--text-main);
             flex-shrink: 0;
+            font-size: 14px;
         }
 
+        /* 인풋창들 기본 배율 지정 */
         .item-name {
-            flex: 2;
-            min-width: 100px;
+            flex: 2.2;
+            min-width: 0; /* flex 환경에서 글자 밀림 깨짐 방지 */
         }
 
         .item-qty-wrapper {
-            flex: 1;
+            flex: 1.1;
             display: flex;
             align-items: center;
-            gap: 4px;
-            min-width: 70px;
+            gap: 2px;
+            min-width: 0;
         }
 
         .item-qty {
             text-align: right;
+            padding: 12px 6px 12px 8px; /* 좌우 여백 최적화 */
         }
 
         .qty-unit {
             font-weight: 700;
             white-space: nowrap;
+            font-size: 13px;
         }
 
         .item-shop {
-            flex: 1.5;
-            min-width: 110px;
+            flex: 1.7;
+            min-width: 0;
             background-color: #fafafa;
+            padding-right: 20px; /* 드롭다운 화살표 겹침 방지 */
+            text-overflow: ellipsis; /* 글자 길어지면 ... 처리 */
         }
 
         .btn-delete {
@@ -277,7 +288,7 @@
             border: none;
             color: #ff4d4f;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             padding: 0 4px;
             flex-shrink: 0;
         }
@@ -321,6 +332,57 @@
         .btn-share:hover {
             opacity: 0.9;
         }
+
+        /* ---------------------------------------------------- */
+        /* 📱 [초소형 스마트폰 최적화 적용] 화면 너비 400px 이하 대응 */
+        /* ---------------------------------------------------- */
+        @media screen and (max-width: 400px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px 12px;
+            }
+            h1 {
+                font-size: 21px;
+                margin-bottom: 20px;
+            }
+            input, select, textarea {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            .btn-register {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            /* 장비 리스트가 좁은 화면에서 가로로 뭉개지지 않도록 정밀 수정 */
+            .equipment-item {
+                gap: 4px;
+            }
+            .item-number {
+                width: 16px;
+                font-size: 13px;
+            }
+            .qty-unit {
+                font-size: 12px;
+            }
+            .item-name {
+                flex: 2;
+            }
+            .item-qty-wrapper {
+                flex: 1.1;
+            }
+            .item-shop {
+                flex: 1.6;
+                padding: 10px 4px;
+                font-size: 12px;
+            }
+            .btn-delete {
+                font-size: 18px;
+                padding: 0 2px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -359,7 +421,7 @@
         </div>
         
         <div class="shop-registration">
-            <input type="text" id="shopInput" placeholder="장비 출처 기입 (ex. 480P 렌탈 / 학교 장비 / 개인장비) 하면 목록에 추가">
+            <input type="text" id="shopInput" placeholder="장비 출처 기입 (ex. 480P 렌탈 / 개인장비) 하면 목록에 추가">
             <button class="btn-register" onclick="registerShop()">등록</button>
         </div>
         <div class="shop-tags" id="shopTags"></div>
@@ -444,8 +506,6 @@
             }
             // 3. 장비 리스트 및 구분 태그 파싱
             else if (!isMemoSection && /^\d+\./.test(trimmed)) {
-                // 예시 형태: "1. FX6 - 2개 [480P 렌탈]"
-                // 번호 제거
                 const content = trimmed.replace(/^\d+\.\s*/, '');
                 
                 let name = '';
@@ -487,7 +547,6 @@
 
         // 파싱된 장비 목록 UI에 생성 및 값 주입
         if (equipmentData.length === 0) {
-            // 정보가 없을 경우 기본 3개 배치
             for(let i = 0; i < 3; i++) addEquipmentItem();
         } else {
             equipmentData.forEach(item => {
@@ -497,15 +556,13 @@
 
         // 메모 데이터 복원
         document.getElementById('memoInput').value = memoLines.join('\n').trim();
-        document.getElementById('importTextArea').value = ''; // 입력창 비우기
+        document.getElementById('importTextArea').value = ''; 
         
-        // 접이식 창 닫기
         document.querySelector('.import-section').removeAttribute('open');
         
         alert('카톡 텍스트의 데이터가 성공적으로 복구되었습니다!');
     }
 
-    // 값 지정을 동반한 품목 추가 함수
     function addEquipmentItemWithValue(name, qty, shop) {
         itemCount++;
         const listContainer = document.getElementById('equipmentList');
@@ -535,7 +592,7 @@
     }
 
     // ----------------------------------------------------
-    // 기존 핵심 기본 로직
+    // 기본 연동 로직
     // ----------------------------------------------------
     let itemCount = 0;
     let shopList = [];
@@ -546,7 +603,6 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('shootDate').value = today;
 
-        // 초기 구동 시에는 기본 빈 로우 3개 생성
         for(let i = 0; i < 3; i++) {
             addEquipmentItem();
         }
