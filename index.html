@@ -21,16 +21,22 @@
             box-sizing: border-box;
         }
 
-        /* [핵심 수정] 모바일 브라우저에서 아래로 당겨서 새로고침(Pull-to-refresh) 차단 */
+        /* [구조 변경] 사파리/삼성 브라우저의 전체 화면 당김 새로고침을 무력화하는 바깥 고정 레이어 */
         html, body {
-            overscroll-behavior-y: contain;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 브라우저 자체 스크롤 바운스 차단 */
+            background-color: var(--bg-color);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
+        /* 내부에서만 스크롤이 움직이도록 독립된 방을 생성 */
+        .scroll-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
             padding: 16px;
             display: flex;
             justify-content: center;
@@ -43,6 +49,8 @@
             padding: 24px 16px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            align-self: flex-start; /* 상단 고정 */
+            margin-bottom: 40px;
         }
 
         /* 인증 실패 시 나타날 경고 화면 스타일 */
@@ -107,7 +115,6 @@
             letter-spacing: -0.5px;
         }
 
-        /* 텍스트 불러오기 섹션 스타일 */
         .import-section {
             background-color: var(--import-bg);
             padding: 12px;
@@ -164,15 +171,11 @@
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s;
-            font-family: inherit;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--accent-color);
-        }
-
-        input[type="date"] {
-            position: relative;
         }
 
         textarea {
@@ -337,7 +340,7 @@
         }
 
         @media screen and (max-width: 400px) {
-            body {
+            .scroll-wrapper {
                 padding: 10px;
             }
             .container {
@@ -385,61 +388,64 @@
 </head>
 <body>
 
-<div class="container" id="mainContent" style="display: none;">
-    <div class="logo-container">
-        <a href="http://www.480prental.com" target="_blank" class="logo-link" title="480P 렌탈 바로가기">
-            <img src="480P_LOGO.jpg" alt="480P LOGO">
-        </a>
-        <a href="https://smartstore.naver.com/dekoboko" target="_blank" class="logo-link" title="DEKOBOKO 스마트스토어 바로가기">
-            <img src="DEKOBOKO_LOGO.jpg" alt="DEKOBOKO LOGO">
-        </a>
+<!-- 전체 스크롤 감싸기 레이어 -->
+<div class="scroll-wrapper" id="scrollWrapper">
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="logo-container">
+            <a href="http://www.480prental.com" target="_blank" class="logo-link" title="480P 렌탈 바로가기">
+                <img src="480P_LOGO.jpg" alt="480P LOGO">
+            </a>
+            <a href="https://smartstore.naver.com/dekoboko" target="_blank" class="logo-link" title="DEKOBOKO 스마트스토어 바로가기">
+                <img src="DEKOBOKO_LOGO.jpg" alt="DEKOBOKO LOGO">
+            </a>
+        </div>
+
+        <h1>촬영 장비 리스트</h1>
+
+        <details class="import-section">
+            <summary>📝 카톡 공유 텍스트로 목록 복구하기</summary>
+            <div class="import-container">
+                <textarea id="importTextArea" placeholder="공유했던 카톡 텍스트 전체를 여기에 붙여넣으세요. 기존의 장비 데이터가 그대로 복구 됩니다."></textarea>
+                <button class="btn-import" onclick="importFromText()">📋 데이터 복구하기</button>
+            </div>
+        </details>
+
+        <div class="meta-info">
+            <div class="input-group">
+                <input type="text" id="projectName" placeholder="프로젝트 이름 입력">
+            </div>
+            <div class="input-group row">
+                <input type="date" id="shootDate">
+                <input type="text" id="callTime" placeholder="콜 타임 입력(ex. 오전 8시)">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="locationInput" placeholder="로케 주소 입력">
+            </div>
+            
+            <div class="shop-registration">
+                <input type="text" id="shopInput" placeholder="장비 출처 기입 (ex. 480P 렌탈 / 개인장비) 하면 목록에 추가">
+                <button class="btn-register" onclick="registerShop()">등록</button>
+            </div>
+            <div class="shop-tags" id="shopTags"></div>
+
+            <div class="input-group">
+                <textarea id="memoInput" placeholder="메모 / 특이사항을 입력해 주세요. (ex. 촬영 전날 배터리 충전하기)"></textarea>
+            </div>
+        </div>
+
+        <div class="section-title">장비 리스트</div>
+        <div class="equipment-list" id="equipmentList"></div>
+
+        <button class="btn-add" onclick="addEquipmentItem()">+ 품목 추가</button>
+        <button class="btn-share" onclick="shareToKakao()">+ 촬영팀 카톡 공유</button>
     </div>
 
-    <h1>촬영 장비 리스트</h1>
-
-    <details class="import-section">
-        <summary>📝 카톡 공유 텍스트로 목록 복구하기</summary>
-        <div class="import-container">
-            <textarea id="importTextArea" placeholder="공유했던 카톡 텍스트 전체를 여기에 붙여넣으세요. 기존의 장비 데이터가 그대로 복구 됩니다."></textarea>
-            <button class="btn-import" onclick="importFromText()">📋 데이터 복구하기</button>
+    <div id="authErrorBlock" style="display: none;">
+        <div class="auth-error-container">
+            <h2>DEKOBOKO NFC를 태그 하세요.</h2>
+            <p>이 페이지는 DEKOBOKO 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.<br>장비 목록이 초기화 됐다면 기존 카톡 공유 텍스트를 복사하여 붙여 넣으시면<br>그대로 복구 됩니다:)</p>
         </div>
-    </details>
-
-    <div class="meta-info">
-        <div class="input-group">
-            <input type="text" id="projectName" placeholder="프로젝트 이름 입력">
-        </div>
-        <div class="input-group row">
-            <input type="date" id="shootDate">
-            <input type="text" id="callTime" placeholder="콜 타임 입력(ex. 오전 8시)">
-        </div>
-        
-        <div class="input-group">
-            <input type="text" id="locationInput" placeholder="로케 주소 입력">
-        </div>
-        
-        <div class="shop-registration">
-            <input type="text" id="shopInput" placeholder="장비 출처 기입 (ex. 480P 렌탈 / 개인장비) 하면 목록에 추가">
-            <button class="btn-register" onclick="registerShop()">등록</button>
-        </div>
-        <div class="shop-tags" id="shopTags"></div>
-
-        <div class="input-group">
-            <textarea id="memoInput" placeholder="메모 / 특이사항을 입력해 주세요. (ex. 촬영 전날 배터리 충전하기)"></textarea>
-        </div>
-    </div>
-
-    <div class="section-title">장비 리스트</div>
-    <div class="equipment-list" id="equipmentList"></div>
-
-    <button class="btn-add" onclick="addEquipmentItem()">+ 품목 추가</button>
-    <button class="btn-share" onclick="shareToKakao()">+ 촬영팀 카톡 공유</button>
-</div>
-
-<div id="authErrorBlock" style="display: none;">
-    <div class="auth-error-container">
-        <h2>DEKOBOKO NFC를 태그 하세요.</h2>
-        <p>이 페이지는 DEKOBOKO 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.<br>장비 목록이 초기화 됐다면 기존 카톡 공유 텍스트를 복사하여 붙여 넣으시면<br>그대로 복구 됩니다:)</p>
     </div>
 </div>
 
@@ -466,17 +472,28 @@
     })();
 
     // ----------------------------------------------------
-    // [추가 보안] 구형 브라우저 및 하방 터치 스와이프 새로고침 완벽 차단
+    // 🚨 [새로고침 방어] 데이터 이탈 방지 경고 팝업 시스템 활성화
     // ----------------------------------------------------
-    let touchStartClientY = 0;
-    document.addEventListener('touchstart', function (e) {
-        touchStartClientY = e.touches[0].clientY;
-    }, { passive: false });
+    window.addEventListener('beforeunload', function (e) {
+        // 무조건 이탈 경고 팝업 가동
+        e.preventDefault();
+        e.returnValue = ''; 
+    });
 
-    document.addEventListener('touchmove', function (e) {
-        const touchVMove = e.touches[0].clientY - touchStartClientY;
-        // 최상단에서 손가락을 아래로 당기려고 할 때 스크롤 제스처 이벤트 차단
-        if (document.documentElement.scrollTop === 0 && touchVMove > 10) {
+    // ----------------------------------------------------
+    // [터치 방어] 내부 스크롤 래퍼 바운스 제어 최적화
+    // ----------------------------------------------------
+    const wrapper = document.getElementById('scrollWrapper');
+    let startY = 0;
+
+    wrapper.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].pageY;
+    }, { passive: true });
+
+    wrapper.addEventListener('touchmove', function(e) {
+        const y = e.touches[0].pageY;
+        // 스크롤이 맨 위에 도달한 상태에서 아래로 더 땡기려고 할 때 이벤트 차단
+        if (wrapper.scrollTop === 0 && y > startY) {
             if (e.cancelable) e.preventDefault();
         }
     }, { passive: false });
