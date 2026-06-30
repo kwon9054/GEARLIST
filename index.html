@@ -21,13 +21,13 @@
             box-sizing: border-box;
         }
 
-        /* [구조 변경] 사파리/삼성 브라우저의 전체 화면 당김 새로고침을 무력화하는 바깥 고정 레이어 */
+        /* 모바일 브라우저에서 아래로 당겨서 새로고침(Pull-to-refresh) 차단 */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* 브라우저 자체 스크롤 바운스 차단 */
+            overflow: hidden; 
             background-color: var(--bg-color);
         }
 
@@ -36,7 +36,7 @@
             width: 100%;
             height: 100%;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+            -webkit-overflow-scrolling: touch; 
             padding: 16px;
             display: flex;
             justify-content: center;
@@ -49,7 +49,7 @@
             padding: 24px 16px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            align-self: flex-start; /* 상단 고정 */
+            align-self: flex-start; 
             margin-bottom: 40px;
         }
 
@@ -339,6 +339,9 @@
             opacity: 0.9;
         }
 
+        /* ---------------------------------------------------- */
+        /* 📱 [초소형 스마트폰 최적화 적용] 화면 너비 400px 이하 대응 */
+        /* ---------------------------------------------------- */
         @media screen and (max-width: 400px) {
             .scroll-wrapper {
                 padding: 10px;
@@ -358,6 +361,14 @@
                 padding: 10px 12px;
                 font-size: 13px;
             }
+
+            /* [수정 포인트] 아이폰 미니 등 좁은 화면에서 날짜와 콜타임 칸이 절대 겹치지 않도록 세로 정렬 분할 */
+            .input-group.row {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
             .equipment-item {
                 gap: 4px;
             }
@@ -388,7 +399,6 @@
 </head>
 <body>
 
-<!-- 전체 스크롤 감싸기 레이어 -->
 <div class="scroll-wrapper" id="scrollWrapper">
     <div class="container" id="mainContent" style="display: none;">
         <div class="logo-container">
@@ -450,9 +460,7 @@
 </div>
 
 <script>
-    // ----------------------------------------------------
     // [보안 단계] NFC 태그 토큰 실시간 검증 및 주소창 클리닝 스크립트
-    // ----------------------------------------------------
     (function checkNfcAuthority() {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('auth');
@@ -471,18 +479,13 @@
         }
     })();
 
-    // ----------------------------------------------------
     // 🚨 [새로고침 방어] 데이터 이탈 방지 경고 팝업 시스템 활성화
-    // ----------------------------------------------------
     window.addEventListener('beforeunload', function (e) {
-        // 무조건 이탈 경고 팝업 가동
         e.preventDefault();
         e.returnValue = ''; 
     });
 
-    // ----------------------------------------------------
     // [터치 방어] 내부 스크롤 래퍼 바운스 제어 최적화
-    // ----------------------------------------------------
     const wrapper = document.getElementById('scrollWrapper');
     let startY = 0;
 
@@ -492,16 +495,13 @@
 
     wrapper.addEventListener('touchmove', function(e) {
         const y = e.touches[0].pageY;
-        // 스크롤이 맨 위에 도달한 상태에서 아래로 더 땡기려고 할 때 이벤트 차단
         if (wrapper.scrollTop === 0 && y > startY) {
             if (e.cancelable) e.preventDefault();
         }
     }, { passive: false });
 
 
-    // ----------------------------------------------------
     // 데이터 복구 (카톡 텍스트 -> 웹 화면 복원) 핵심 로직
-    // ----------------------------------------------------
     function importFromText() {
         const rawText = document.getElementById('importTextArea').value.trim();
         if (!rawText) {
@@ -613,9 +613,7 @@
         renumberItems();
     }
 
-    // ----------------------------------------------------
     // 기본 연동 로직
-    // ----------------------------------------------------
     let itemCount = 0;
     let shopList = [];
 
@@ -634,6 +632,7 @@
         const shopInput = document.getElementById('shopInput');
         const shopName = shopInput.value.trim();
         
+        if (!shopInput) return;
         if (!shopName) {
             alert('구분할 이름을 입력해 주세요.');
             return;
