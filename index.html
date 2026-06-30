@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>촬영장비 리스트</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sub: #666666;
+            --border-color: #e0e0e0;
+            --accent-color: #007bff;
+            --kakao-color: #fee500;
+            --kakao-text: #191919;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 0 5px;
+        }
+
+        .logo-link {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .logo-link:hover {
+            border-color: var(--text-main);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-link img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        .meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .input-group.row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        input[type="date"] {
+            position: relative;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .shop-registration {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-register {
+            width: auto;
+            white-space: nowrap;
+            background-color: var(--text-main);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .shop-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .shop-tag {
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .shop-tag .btn-del-tag {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-top: 1px solid #f1f3f5;
+            padding-top: 20px;
+        }
+
+        .equipment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-number {
+            font-weight: 700;
+            width: 22px;
+            color: var(--text-main);
+            flex-shrink: 0;
+        }
+
+        .item-name {
+            flex: 2;
+            min-width: 100px;
+        }
+
+        .item-qty-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 70px;
+        }
+
+        .item-qty {
+            text-align: right;
+        }
+
+        .qty-unit {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .item-shop {
+            flex: 1.5;
+            min-width: 110px;
+            background-color: #fafafa;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ff4d4f;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .btn-add {
+            width: 100%;
+            background: none;
+            border: 2px dashed var(--border-color);
+            color: var(--text-sub);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 35px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+        }
+
+        .btn-share {
+            width: 100%;
+            background-color: var(--kakao-color);
+            color: var(--kakao-text);
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .btn-share:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <a href="http://www.480prental.com" target="_blank" class="logo-link" title="480P 렌탈 바로가기">
+            <img src="480P_LOGO.jpg" alt="480P LOGO">
+        </a>
+        <a href="https://smartstore.naver.com/dekoboko" target="_blank" class="logo-link" title="DEKOBOKO 스마트스토어 바로가기">
+            <img src="DEKOBOKO_LOGO.jpg" alt="DEKOBOKO LOGO">
+        </a>
+    </div>
+
+    <h1>촬영장비 리스트</h1>
+
+    <div class="meta-info">
+        <div class="input-group">
+            <input type="text" id="projectName" placeholder="프로젝트 이름">
+        </div>
+        <div class="input-group row">
+            <input type="date" id="shootDate">
+            <input type="text" id="callTime" placeholder="콜타임 (ex. 07:00)">
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="locationInput" placeholder="촬영 장소 주소 기입">
+        </div>
+        
+        <div class="shop-registration">
+            <input type="text" id="shopInput" placeholder="장비 출처 기입 ex. 480P 렌탈 / 학교 장비 / 개인장비 등">
+            <button class="btn-register" onclick="registerShop()">등록</button>
+        </div>
+        <div class="shop-tags" id="shopTags"></div>
+
+        <div class="input-group">
+            <textarea id="memoInput" placeholder="메모 / 특이사항을 입력해 주세요. (ex. 픽업 시간, 주의 사항 등)"></textarea>
+        </div>
+    </div>
+
+    <div class="section-title">장비 리스트</div>
+    <div class="equipment-list" id="equipmentList"></div>
+
+    <button class="btn-add" onclick="addEquipmentItem()">+ 품목 추가</button>
+    <button class="btn-share" onclick="shareToKakao()">+ 촬영팀 카톡 공유</button>
+</div>
+
+<script>
+    let itemCount = 0;
+    let shopList = [];
+
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('shootDate').value = today;
+
+        for(let i = 0; i < 3; i++) {
+            addEquipmentItem();
+        }
+    }
+
+    function registerShop() {
+        const shopInput = document.getElementById('shopInput');
+        const shopName = shopInput.value.trim();
+        
+        if (!shopName) {
+            alert('구분할 이름을 입력해 주세요.');
+            return;
+        }
+        
+        if (shopList.includes(shopName)) {
+            alert('이미 등록된 항목입니다.');
+            return;
+        }
+        
+        shopList.push(shopName);
+        shopInput.value = '';
+        
+        renderShopTags();      
+        updateAllDropdowns();  
+    }
+
+    function removeShop(name) {
+        shopList = shopList.filter(shop => shop !== name);
+        renderShopTags();
+        updateAllDropdowns();
+    }
+
+    function renderShopTags() {
+        const container = document.getElementById('shopTags');
+        container.innerHTML = '';
+        
+        shopList.forEach(shop => {
+            const tag = document.createElement('span');
+            tag.className = 'shop-tag';
+            tag.innerHTML = `${shop} <button class="btn-del-tag" onclick="removeShop('${shop}')">×</button>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function addEquipmentItem() {
+        itemCount++;
+        const listContainer = document.getElementById('equipmentList');
+        
+        const itemRow = document.createElement('div');
+        itemRow.className = 'equipment-item';
+        itemRow.id = `itemRow_${itemCount}`;
+        
+        let selectOptions = `<option value="">장비 구분</option>`;
+        shopList.forEach(shop => {
+            selectOptions += `<option value="${shop}">${shop}</option>`;
+        });
+        
+        itemRow.innerHTML = `
+            <span class="item-number">${itemCount}.</span>
+            <input type="text" class="item-name" placeholder="장비명">
+            <div class="item-qty-wrapper">
+                <input type="number" class="item-qty" placeholder="0" min="1">
+                <span class="qty-unit">개</span>
+            </div>
+            <select class="item-shop">
+                ${selectOptions}
+            </select>
+            <button class="btn-delete" onclick="removeItem(${itemCount})">×</button>
+        `;
+        
+        listContainer.appendChild(itemRow);
+        renumberItems();
+    }
+
+    function updateAllDropdowns() {
+        const dropdowns = document.querySelectorAll('.item-shop');
+        dropdowns.forEach(dropdown => {
+            const currentValue = dropdown.value; 
+            
+            dropdown.innerHTML = `<option value="">장비 구분</option>`;
+            shopList.forEach(shop => {
+                const option = document.createElement('option');
+                option.value = shop;
+                option.text = shop;
+                dropdown.appendChild(option);
+            });
+            
+            if (shopList.includes(currentValue)) {
+                dropdown.value = currentValue;
+            } else {
+                dropdown.value = ""; 
+            }
+        });
+    }
+
+    function removeItem(id) {
+        const row = document.getElementById(`itemRow_${id}`);
+        if (row) {
+            row.remove();
+            renumberItems();
+        }
+    }
+
+    function renumberItems() {
+        const rows = document.querySelectorAll('.equipment-item');
+        itemCount = 0;
+        rows.forEach((row, index) => {
+            itemCount = index + 1;
+            row.id = `itemRow_${itemCount}`;
+            row.querySelector('.item-number').innerText = `${itemCount}.`;
+            row.querySelector('.btn-delete').setAttribute('onclick', `removeItem(${itemCount})`);
+        });
+    }
+
+    function shareToKakao() {
+        const projectName = document.getElementById('projectName').value || '미지정 프로젝트';
+        const shootDate = document.getElementById('shootDate').value || '-';
+        const callTime = document.getElementById('callTime').value || '-';
+        const locationText = document.getElementById('locationInput').value.trim() || '-';
+        const memo = document.getElementById('memoInput').value.trim();
+
+        let textOutput = `🎬 [촬영장비 리스트]\n`;
+        textOutput += `📌 프로젝트: ${projectName}\n`;
+        textOutput += `📅 촬영 날짜: ${shootDate}\n`;
+        textOutput += `⏰ 콜타임: ${callTime}\n`;
+        textOutput += `📍 촬영 장소: ${locationText}\n`;
+        textOutput += `-------------------------\n📦 장비 목록:\n`;
+
+        const rows = document.querySelectorAll('.equipment-item');
+        let validItemCount = 0;
+
+        rows.forEach((row) => {
+            const name = row.querySelector('.item-name').value.trim();
+            const qty = row.querySelector('.item-qty').value.trim();
+            const shop = row.querySelector('.item-shop').value;
+            const shopText = shop ? ` [${shop}]` : ''; 
+            
+            if (name) {
+                validItemCount++;
+                textOutput += `${validItemCount}. ${name} - ${qty || 1}개${shopText}\n`;
+            }
+        });
+
+        if (validItemCount === 0) {
+            textOutput += `(등록된 장비가 없습니다.)\n`;
+        }
+
+        if (memo) {
+            textOutput += `-------------------------\n📝 메모/특이사항:\n${memo}\n`;
+        }
+
+        if (navigator.share) {
+            navigator.share({
+                title: '촬영장비 리스트',
+                text: textOutput
+            }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(textOutput).then(() => {
+                alert('장비 리스트가 클립보드에 복사되었습니다! 카톡창에 붙여넣기(Ctrl+V) 하세요.\n\n[복사된 내용 미리보기]:\n' + textOutput);
+            }).catch(err => {
+                alert('복사에 실패했습니다.');
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
