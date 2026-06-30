@@ -36,6 +36,26 @@
             box-sizing: border-box;
         }
 
+        /* 인증 실패 시 나타날 경고 화면 스타일 */
+        .auth-error-container {
+            text-align: center;
+            padding: 60px 20px;
+            font-family: inherit;
+        }
+        
+        .auth-error-container h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ff4d4f;
+            margin-bottom: 12px;
+        }
+        
+        .auth-error-container p {
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
         .logo-container {
             display: flex;
             justify-content: space-between;
@@ -268,7 +288,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="mainContent" style="display: none;">
     <div class="logo-container">
         <a href="http://www.480prental.com" target="_blank" class="logo-link" title="480P 렌탈 바로가기">
             <img src="480P_LOGO.jpg" alt="480P LOGO">
@@ -311,11 +331,50 @@
     <button class="btn-share" onclick="shareToKakao()">+ 촬영팀 카톡 공유</button>
 </div>
 
+<div id="authErrorBlock" style="display: none;">
+    <div class="auth-error-container">
+        <h2>접속 권한이 없습니다.</h2>
+        <p>이 페이지는 정식 3D 프린터 모형 내부에 탑재된<br>NFC 태그 인식을 통해서만 진입할 수 있습니다.</p>
+    </div>
+</div>
+
 <script>
+    // ----------------------------------------------------
+    // [보안 단계] NFC 태그 토큰 실시간 검증 및 주소창 클리닝 스크립트
+    // ----------------------------------------------------
+    (function checkNfcAuthority() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('auth');
+
+        // ⭐ 여기 'sabujak2026' 자리에 원하시는 나만의 보안코드를 입력하시면 됩니다!
+        // 예: 'mysecret', 'gear777' 등
+        const SECRET_TOKEN = 'sabujak2026';
+
+        if (token !== SECRET_TOKEN) {
+            // 토큰이 없거나 다르면 에러 화면 표시
+            document.getElementById('authErrorBlock').style.display = 'block';
+            return; 
+        }
+
+        // 인증 성공 시 메인 화면 보이기
+        document.getElementById('mainContent').style.display = 'block';
+
+        // 즉시 주소창에서 "?auth=sabujak2026" 지우기 (사용자 복사 및 재유출 방지)
+        if (window.history.replaceState) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+        }
+    })();
+
+    // ----------------------------------------------------
+    // 기존 기능 스크립트 로직
+    // ----------------------------------------------------
     let itemCount = 0;
     let shopList = [];
 
     window.onload = function() {
+        if (document.getElementById('mainContent').style.display === 'none') return;
+
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('shootDate').value = today;
 
@@ -487,4 +546,3 @@
 
 </body>
 </html>
-
